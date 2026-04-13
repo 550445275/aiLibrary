@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.library.mapper.TenantMapper">
+
+    <resultMap id="TenantResultMap" type="Tenant">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectByCode" resultMap="TenantResultMap">
+        SELECT id, code, name, enabled, created_at
+        FROM tenant
+        WHERE code = #{code}
+        LIMIT 1
+    </select>
+
+    <select id="selectById" resultMap="TenantResultMap">
+        SELECT id, code, name, enabled, created_at
+        FROM tenant
+        WHERE id = #{id}
+    </select>
+
+    <select id="countByCode" resultType="long">
+        SELECT COUNT(*) FROM tenant WHERE code = #{code}
+    </select>
+
+    <select id="selectAll" resultMap="TenantResultMap">
+        SELECT id, code, name, enabled, created_at
+        FROM tenant
+        ORDER BY id ASC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO tenant (code, name, enabled)
+        VALUES (#{code}, #{name}, #{enabled})
+    </insert>
+
+    <update id="update">
+        UPDATE tenant
+        SET name = #{name},
+            enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+</mapper>
