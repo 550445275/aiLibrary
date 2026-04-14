@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +47,9 @@ public class BookApiController {
     }
 
     @PostMapping
+    @PreAuthorize(
+            "hasAuthority(T(com.example.library.security.TenantRoles).ROLE_TENANT_ADMIN) or "
+                    + "hasAuthority(T(com.example.library.security.TenantRoles).AUTHORITY_PLATFORM_ADMIN)")
     public ResponseEntity<BookDto> create(@Valid @RequestBody BookSaveRequest body) {
         Book book = toEntity(body, null);
         Book saved = bookService.save(book);
@@ -53,6 +57,9 @@ public class BookApiController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize(
+            "hasAuthority(T(com.example.library.security.TenantRoles).ROLE_TENANT_ADMIN) or "
+                    + "hasAuthority(T(com.example.library.security.TenantRoles).AUTHORITY_PLATFORM_ADMIN)")
     public BookDto update(@PathVariable("id") Long id, @Valid @RequestBody BookSaveRequest body) {
         bookService.getById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "图书不存在"));
@@ -61,6 +68,9 @@ public class BookApiController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize(
+            "hasAuthority(T(com.example.library.security.TenantRoles).ROLE_TENANT_ADMIN) or "
+                    + "hasAuthority(T(com.example.library.security.TenantRoles).AUTHORITY_PLATFORM_ADMIN)")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         if (bookService.getById(id).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "图书不存在");

@@ -36,9 +36,12 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../api'
+import { canMutateBooks } from '../auth/roles'
+import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 
 const isEdit = computed(() => {
   const id = route.query.id
@@ -65,6 +68,10 @@ function parsePrice() {
 }
 
 onMounted(async () => {
+  if (!canMutateBooks(authStore.user)) {
+    router.replace({ name: 'books' })
+    return
+  }
   if (!isEdit.value) return
   const id = route.query.id
   try {

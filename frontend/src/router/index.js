@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import api from '../api'
-import { isPlatformAdminUser, isTenantAdminUser } from '../auth/roles'
+import { canMutateBooks, isPlatformAdminUser, isTenantAdminUser } from '../auth/roles'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -20,13 +20,13 @@ const routes = [
     path: '/books/new',
     name: 'book-new',
     component: () => import('../views/BookFormView.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresBookMutation: true },
   },
   {
     path: '/books/edit',
     name: 'book-edit',
     component: () => import('../views/BookFormView.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresBookMutation: true },
   },
   {
     path: '/admin/tenant-auth',
@@ -83,6 +83,9 @@ router.beforeEach(async (to) => {
         return { name: 'books' }
       }
       if (to.meta.requiresTenantAdmin && !isTenantAdminUser(data)) {
+        return { name: 'books' }
+      }
+      if (to.meta.requiresBookMutation && !canMutateBooks(data)) {
         return { name: 'books' }
       }
     } catch {

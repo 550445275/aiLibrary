@@ -2,7 +2,7 @@
   <div class="card">
     <div class="toolbar">
       <h1 style="margin: 0">图书列表</h1>
-      <router-link to="/books/new" class="btn btn-primary">新建</router-link>
+      <router-link v-if="canMutate" to="/books/new" class="btn btn-primary">新建</router-link>
     </div>
     <p v-if="loadError" class="error-msg">{{ loadError }}</p>
     <div v-else-if="loading">加载中…</div>
@@ -16,7 +16,7 @@
             <th>ISBN</th>
             <th>出版年</th>
             <th>价格</th>
-            <th>操作</th>
+            <th v-if="canMutate">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -27,7 +27,7 @@
             <td>{{ b.isbn ?? '—' }}</td>
             <td>{{ b.publishYear ?? '—' }}</td>
             <td>{{ b.price != null ? b.price : '—' }}</td>
-            <td>
+            <td v-if="canMutate">
               <router-link :to="{ name: 'book-edit', query: { id: b.id } }">编辑</router-link>
               <button type="button" class="link-btn" style="margin-left: 0.5rem" @click="remove(b)">
                 删除
@@ -66,7 +66,14 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import api from '../api'
+import { canMutateBooks } from '../auth/roles'
+import { useAuthStore } from '../stores/auth'
+
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
+const canMutate = computed(() => canMutateBooks(user.value))
 
 const loading = ref(true)
 const loadError = ref('')

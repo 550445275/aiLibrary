@@ -25,3 +25,10 @@ export function isTenantAdminUser(user) {
 export function isTenantMemberUser(user) {
   return user?.role === TENANT_ROLE.USER
 }
+
+/** 可对 /api/books 执行新建/编辑/删除（与后端写权限一致） */
+export function canMutateBooks(user) {
+  if (!user) return false
+  if (isPlatformAdminUser(user)) return true
+  return isTenantAdminUser(user)
+}
