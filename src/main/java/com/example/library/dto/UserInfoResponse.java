@@ -8,6 +8,8 @@ public class UserInfoResponse {
     private String role;
     private String tenantCode;
     private boolean platformAdmin;
+    /** 租户管理员，与 {@link LibraryUserDetails#isTenantAdmin()} 一致 */
+    private boolean tenantAdmin;
 
     public UserInfoResponse() {
     }
@@ -18,6 +20,7 @@ public class UserInfoResponse {
         r.setRole(lud.getTenantRole());
         r.setTenantCode(lud.getTenantCode());
         r.setPlatformAdmin(lud.isPlatformAdmin());
+        r.setTenantAdmin(lud.isTenantAdmin());
         return r;
     }
 
@@ -51,5 +54,13 @@ public class UserInfoResponse {
 
     public void setPlatformAdmin(boolean platformAdmin) {
         this.platformAdmin = platformAdmin;
+    }
+
+    public boolean isTenantAdmin() {
+        return tenantAdmin;
+    }
+
+    public void setTenantAdmin(boolean tenantAdmin) {
+        this.tenantAdmin = tenantAdmin;
     }
 }

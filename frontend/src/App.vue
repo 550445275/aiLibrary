@@ -2,7 +2,7 @@
   <div class="app-shell">
     <header v-if="authStore.user" class="top-bar">
       <span class="brand">图书管理</span>
-      <nav v-if="authStore.user.platformAdmin" class="nav-admin">
+      <nav v-if="isPlatformAdminUser(authStore.user)" class="nav-admin">
         <router-link to="/admin/tenants">租户管理</router-link>
         <router-link to="/admin/tenant-auth">租户授权</router-link>
       </nav>
@@ -20,6 +20,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { isPlatformAdminUser } from './auth/roles'
 import { useAuthStore } from './stores/auth'
 import api from './api'
 

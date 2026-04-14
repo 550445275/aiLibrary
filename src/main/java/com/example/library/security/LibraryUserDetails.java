@@ -10,7 +10,8 @@ import java.util.List;
 
 public class LibraryUserDetails implements UserDetails {
 
-    public static final String AUTHORITY_PLATFORM_ADMIN = "ROLE_PLATFORM_ADMIN";
+    /** 与 {@link TenantRoles#AUTHORITY_PLATFORM_ADMIN} 同值，便于沿用既有引用 */
+    public static final String AUTHORITY_PLATFORM_ADMIN = TenantRoles.AUTHORITY_PLATFORM_ADMIN;
 
     private final Long tenantId;
     private final String tenantCode;
@@ -34,12 +35,12 @@ public class LibraryUserDetails implements UserDetails {
         this.username = username;
         this.password = password;
         this.enabled = enabled;
-        this.tenantRole = tenantRole;
+        this.tenantRole = TenantRoles.normalize(tenantRole);
         this.platformAdmin = platformAdmin;
         List<GrantedAuthority> auths = new ArrayList<>();
-        auths.add(new SimpleGrantedAuthority(tenantRole));
+        auths.add(new SimpleGrantedAuthority(this.tenantRole));
         if (platformAdmin) {
-            auths.add(new SimpleGrantedAuthority(AUTHORITY_PLATFORM_ADMIN));
+            auths.add(new SimpleGrantedAuthority(TenantRoles.AUTHORITY_PLATFORM_ADMIN));
         }
         this.authorities = List.copyOf(auths);
     }
@@ -58,6 +59,16 @@ public class LibraryUserDetails implements UserDetails {
 
     public boolean isPlatformAdmin() {
         return platformAdmin;
+    }
+
+    /** 租户管理员（{@link TenantRoles#ROLE_TENANT_ADMIN}，含自 {@link TenantRoles#LEGACY_ROLE_ADMIN} 规范化） */
+    public boolean isTenantAdmin() {
+        return TenantRoles.isTenantAdminRole(tenantRole);
+    }
+
+    /** 普通成员 */
+    public boolean isTenantMember() {
+        return TenantRoles.isMemberRole(tenantRole);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.library.config;
 
 import com.example.library.entity.AppUser;
 import com.example.library.entity.Tenant;
+import com.example.library.security.TenantRoles;
 import com.example.library.mapper.AppUserMapper;
 import com.example.library.mapper.TenantMapper;
 import org.springframework.boot.CommandLineRunner;
@@ -40,7 +41,7 @@ public class UserDataInitializer implements CommandLineRunner {
         admin.setTenantId(tenant.getId());
         admin.setUsername("admin");
         admin.setPassword(passwordEncoder.encode("admin"));
-        admin.setRole("ROLE_ADMIN");
+        admin.setRole(TenantRoles.ROLE_TENANT_ADMIN);
         admin.setEnabled(true);
         admin.setPlatformAdmin(true);
         appUserMapper.insert(admin);

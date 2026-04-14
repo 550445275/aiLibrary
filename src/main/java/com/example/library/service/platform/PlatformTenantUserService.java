@@ -6,6 +6,7 @@ import com.example.library.dto.platform.PlatformUserUpdateRequest;
 import com.example.library.entity.AppUser;
 import com.example.library.mapper.AppUserMapper;
 import com.example.library.mapper.TenantMapper;
+import com.example.library.security.TenantRoles;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,8 @@ import java.util.Set;
 @Service
 public class PlatformTenantUserService {
 
-    private static final Set<String> ALLOWED_ROLES = Set.of("ROLE_ADMIN", "ROLE_USER");
+    private static final Set<String> ALLOWED_ROLES =
+            Set.of(TenantRoles.ROLE_TENANT_ADMIN, TenantRoles.ROLE_USER, TenantRoles.LEGACY_ROLE_ADMIN);
 
     private final AppUserMapper appUserMapper;
     private final TenantMapper tenantMapper;
@@ -53,10 +55,12 @@ public class PlatformTenantUserService {
                 || req.getRole() == null || req.getRole().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "用户名、密码、角色不能为空");
         }
-        String role = req.getRole().trim();
-        if (!ALLOWED_ROLES.contains(role)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "角色仅支持 ROLE_ADMIN 或 ROLE_USER");
+        String raw = req.getRole().trim();
+        if (!ALLOWED_ROLES.contains(raw)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "角色仅支持 ROLE_TENANT_ADMIN、ROLE_USER（兼容 ROLE_ADMIN）");
         }
+        String role = TenantRoles.normalize(raw);
         AppUser u = new AppUser();
         u.setTenantId(tenantId);
         u.setUsername(req.getUsername().trim());
@@ -81,11 +85,12 @@ public class PlatformTenantUserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "用户不存在");
         }
         if (req.getRole() != null && !req.getRole().isBlank()) {
-            String role = req.getRole().trim();
-            if (!ALLOWED_ROLES.contains(role)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "角色仅支持 ROLE_ADMIN 或 ROLE_USER");
+            String raw = req.getRole().trim();
+            if (!ALLOWED_ROLES.contains(raw)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "角色仅支持 ROLE_TENANT_ADMIN、ROLE_USER（兼容 ROLE_ADMIN）");
             }
-            existing.setRole(role);
+            existing.setRole(TenantRoles.normalize(raw));
         }
         if (req.getEnabled() != null) {
             existing.setEnabled(req.getEnabled());

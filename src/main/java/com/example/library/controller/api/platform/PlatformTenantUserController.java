@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/platform/tenants/{tenantId}/users")
-@PreAuthorize("hasAuthority('ROLE_PLATFORM_ADMIN')")
+@PreAuthorize("hasAuthority(T(com.example.library.security.TenantRoles).AUTHORITY_PLATFORM_ADMIN)")
 public class PlatformTenantUserController {
 
     private final PlatformTenantUserService platformTenantUserService;

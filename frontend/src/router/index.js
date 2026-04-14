@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import api from '../api'
+import { isPlatformAdminUser, isTenantAdminUser } from '../auth/roles'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -31,19 +32,31 @@ const routes = [
     path: '/admin/tenant-auth',
     name: 'admin-tenant-auth',
     component: () => import('../views/TenantAuthHubView.vue'),
-    meta: { requiresAuth: true, requiresPlatformAdmin: true },
+    meta: {
+      requiresAuth: true,
+      requiresPlatformAdmin: true,
+      roles: ['PLATFORM_ADMIN'],
+    },
   },
   {
     path: '/admin/tenants',
     name: 'admin-tenants',
     component: () => import('../views/TenantListView.vue'),
-    meta: { requiresAuth: true, requiresPlatformAdmin: true },
+    meta: {
+      requiresAuth: true,
+      requiresPlatformAdmin: true,
+      roles: ['PLATFORM_ADMIN'],
+    },
   },
   {
     path: '/admin/tenants/:tenantId/users',
     name: 'admin-tenant-users',
     component: () => import('../views/TenantUserAuthView.vue'),
-    meta: { requiresAuth: true, requiresPlatformAdmin: true },
+    meta: {
+      requiresAuth: true,
+      requiresPlatformAdmin: true,
+      roles: ['PLATFORM_ADMIN'],
+    },
   },
   {
     path: '/',
@@ -66,7 +79,10 @@ router.beforeEach(async (to) => {
       if (to.meta.guestOnly) {
         return { name: 'books' }
       }
-      if (to.meta.requiresPlatformAdmin && !data.platformAdmin) {
+      if (to.meta.requiresPlatformAdmin && !isPlatformAdminUser(data)) {
+        return { name: 'books' }
+      }
+      if (to.meta.requiresTenantAdmin && !isTenantAdminUser(data)) {
         return { name: 'books' }
       }
     } catch {

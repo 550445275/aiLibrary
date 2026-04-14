@@ -99,6 +99,14 @@ public class TenantSchemaMigrator implements ApplicationRunner {
                     """);
             log.info("已为 app_users 增加 platform_admin，并为默认租户 admin 设为平台管理员");
         }
+
+        if (tableExists("app_users")) {
+            int n = jdbcTemplate.update(
+                    "UPDATE app_users SET role = 'ROLE_TENANT_ADMIN' WHERE role = 'ROLE_ADMIN'");
+            if (n > 0) {
+                log.info("已将 {} 条 app_users.role 从 ROLE_ADMIN 迁移为 ROLE_TENANT_ADMIN", n);
+            }
+        }
     }
 
     private boolean tableExists(String tableName) {

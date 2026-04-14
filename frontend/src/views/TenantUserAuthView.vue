@@ -26,7 +26,7 @@
         <tr v-for="u in users" :key="u.id">
           <td>{{ u.id }}</td>
           <td>{{ u.username }}</td>
-          <td>{{ u.role }}</td>
+          <td>{{ formatRoleLabel(u.role) }}</td>
           <td>{{ u.enabled ? '是' : '否' }}</td>
           <td>{{ u.platformAdmin ? '是' : '否' }}</td>
           <td>
@@ -52,8 +52,8 @@
             <label>
               角色
               <select v-model="createForm.role" required>
-                <option value="ROLE_ADMIN">ROLE_ADMIN</option>
-                <option value="ROLE_USER">ROLE_USER</option>
+                <option :value="TENANT_ROLE.TENANT_ADMIN">租户管理员（ROLE_TENANT_ADMIN）</option>
+                <option :value="TENANT_ROLE.USER">成员（ROLE_USER）</option>
               </select>
             </label>
             <label class="row-check">
@@ -65,8 +65,8 @@
             <label>
               角色
               <select v-model="editForm.role" required>
-                <option value="ROLE_ADMIN">ROLE_ADMIN</option>
-                <option value="ROLE_USER">ROLE_USER</option>
+                <option :value="TENANT_ROLE.TENANT_ADMIN">租户管理员（ROLE_TENANT_ADMIN）</option>
+                <option :value="TENANT_ROLE.USER">成员（ROLE_USER）</option>
               </select>
             </label>
             <label class="row-check">
@@ -93,9 +93,27 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api'
+import { TENANT_ROLE } from '../auth/roles'
 
 const route = useRoute()
 const tenantId = computed(() => route.params.tenantId)
+
+function formatRoleLabel(role) {
+  if (role === TENANT_ROLE.LEGACY_ADMIN || role === TENANT_ROLE.TENANT_ADMIN) {
+    return '租户管理员（ROLE_TENANT_ADMIN）'
+  }
+  if (role === TENANT_ROLE.USER) {
+    return '成员（ROLE_USER）'
+  }
+  return role
+}
+
+function normalizeRoleForForm(role) {
+  if (role === TENANT_ROLE.LEGACY_ADMIN) {
+    return TENANT_ROLE.TENANT_ADMIN
+  }
+  return role
+}
 
 const users = ref([])
 const loading = ref(true)
@@ -109,12 +127,12 @@ const editingUserId = ref(null)
 const createForm = reactive({
   username: '',
   password: '',
-  role: 'ROLE_USER',
+  role: TENANT_ROLE.USER,
   enabled: true,
 })
 
 const editForm = reactive({
-  role: 'ROLE_USER',
+  role: TENANT_ROLE.USER,
   enabled: true,
   platformAdmin: false,
 })
@@ -136,7 +154,7 @@ function openCreate() {
   createMode.value = true
   createForm.username = ''
   createForm.password = ''
-  createForm.role = 'ROLE_USER'
+  createForm.role = TENANT_ROLE.USER
   createForm.enabled = true
   formError.value = ''
   dialogOpen.value = true
@@ -145,7 +163,7 @@ function openCreate() {
 function openEdit(u) {
   createMode.value = false
   editingUserId.value = u.id
-  editForm.role = u.role
+  editForm.role = normalizeRoleForForm(u.role)
   editForm.enabled = u.enabled
   editForm.platformAdmin = u.platformAdmin
   formError.value = ''

@@ -1,6 +1,6 @@
 package com.example.library.config;
 
-import com.example.library.security.LibraryUserDetails;
+import com.example.library.security.TenantRoles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -34,7 +34,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login", "/api/logout", "/api/me").permitAll()
                         .requestMatchers("/api/platform/**")
-                        .hasAuthority(LibraryUserDetails.AUTHORITY_PLATFORM_ADMIN)
+                        .hasAuthority(TenantRoles.AUTHORITY_PLATFORM_ADMIN)
+                        .requestMatchers("/api/tenant/**")
+                        .hasAuthority(TenantRoles.ROLE_TENANT_ADMIN)
                         .requestMatchers("/api/**").authenticated()
                         .requestMatchers(
                                 "/",
