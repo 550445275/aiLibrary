@@ -1,0 +1,13 @@
+# 缩小 build context；必须能包含 target/library-0.0.1-SNAPSHOT.jar
+.git
+.github
+.cursor
+.idea
+**/.DS_Store
+.env
+frontend/node_modules
+frontend
+src
+docker-compose*.yml
+*.md
+scripts
